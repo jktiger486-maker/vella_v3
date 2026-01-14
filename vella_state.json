@@ -1,0 +1,13 @@
+{
+  "hasPosition": false,
+  "positionSide": "SHORT",
+  "entryPrice": null,
+  "remainingQty": 0.0,
+  "slPrice": null,
+  "tp1Filled": false,
+  "trailingActive": false,
+  "stopLine": null,
+  "lastEntryCandleId": null,
+  "regime": "OFF",
+  "exitReason": null
+}
