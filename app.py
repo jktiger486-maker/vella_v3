@@ -436,34 +436,35 @@ def cycle():
     tol = ema9_prev * (cfg.ema9EntryTolerance / 100.0)
 
 
-    # ============================================================
-    # CORE: Mother Trigger (WINDOW MEMORY PATCH)
-    # - 최근 N봉 중 1회라도 발생하면 "숏 가능 구간" 유지
-    # ============================================================
-    MOTHER_WINDOW = 7
+# ============================================================
+# CORE: Mother Trigger (WINDOW MEMORY PATCH)
+# - 최근 N봉 중 1회라도 발생하면 "숏 가능 구간" 유지
+# ============================================================
+        MOTHER_WINDOW = 7   # ★ 빈도 조절 (3~7 추천)
+
+        mother_hit = False
+
+        for i in range(2, 2 + MOTHER_WINDOW):
+            if len(sui5) < i + 1:
+                break
+
+            p2 = sui5[-(i + 1)]
+            p1 = sui5[-i]
+
+            body_top = max(float(p2[1]), float(p2[4]))
+            ema_ok = abs(body_top - ema9_prev) <= tol
+
+            direction_ok = float(p1[4]) < ema9_prev
+            direction_relax = abs(float(p1[4]) - ema9_prev) <= tol
+
+            if ema_ok and (direction_ok or direction_relax):
+                mother_hit = True
+                break
+
+        if cfg.entryFilterEnabled and not mother_hit:
+            return
 
 
-    mother_hit = False
-
-    for i in range(2, 2 + MOTHER_WINDOW):
-        if len(sui5) < i + 1:
-            break
-
-        p2 = sui5[-(i + 1)]
-        p1 = sui5[-i]
-
-        body_top = max(float(p2[1]), float(p2[4]))
-        ema_ok = abs(body_top - ema9_prev) <= tol
-
-        direction_ok = float(p1[4]) < ema9_prev
-        direction_relax = abs(float(p1[4]) - ema9_prev) <= tol
-
-        if ema_ok and (direction_ok or direction_relax):
-            mother_hit = True
-            break
-
-    if cfg.entryFilterEnabled and not mother_hit:
-        return
 
     high_prev = float(prev1[2])
     low_prev = float(prev1[3])
@@ -491,6 +492,7 @@ def cycle():
 
     qty = fx.order("SELL", cfg.investUSDT / price)
 
+
     if qty <= 0:
         return
 
@@ -507,7 +509,6 @@ def cycle():
         lastEntryCandleId=current_id,
     )
     save_state_atomic(state)
-
 
 # ============================================================
 # [MAIN LOOP]
